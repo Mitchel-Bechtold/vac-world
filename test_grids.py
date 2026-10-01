@@ -110,10 +110,6 @@ GRIDS = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Parsing helper (complete - just call it)
-# ---------------------------------------------------------------------------
-
 def parse_grid(art):
     """Convert grid art into the arguments VacuumWorld expects.
 
