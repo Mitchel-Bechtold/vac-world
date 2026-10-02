@@ -115,8 +115,7 @@ def _mst_weight(points):
     total = 0
 
     while len(in_tree) < len(points):
-        # Pick the point outside the tree that is closest to some point
-        # already inside it - the standard Prim's-algorithm step.
+        
         next_point = min(best_dist, key=best_dist.get)
         total += best_dist.pop(next_point)
         in_tree.add(next_point)

@@ -24,9 +24,6 @@ import traceback
 
 from test_grids import EXAMPLE, GRIDS, parse_grid
 
-# Known optimal costs, computed by the instructor's reference solution.
-# Every admissible heuristic must produce exactly these costs with A* and
-# with IDA*.
 EXPECTED_OPTIMAL = {
     'example': 14,
     'g1_tiny': 7,
@@ -136,7 +133,7 @@ def t_initial_shape():
     check_equal(pos, (0, 0), "example grid starts at (0, 0)")
     check_equal(sorted(dirty), [(0, 2), (1, 3), (2, 0), (3, 2)],
                 "example grid dirty cells")
-    hash(state)  # raises TypeError if the state is unhashable
+    hash(state)  
 
 
 @test("Part 1", "is_goal is true only when nothing is dirty")

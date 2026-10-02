@@ -108,8 +108,6 @@ class VacuumWorld:
         """
         pos, dirty = state
         if action == 'CLEAN':
-            # frozenset subtraction returns a NEW frozenset; `dirty` (and
-            # therefore the old state tuple) is left exactly as it was.
             new_dirty = dirty - {pos}
             return (pos, new_dirty)
         else:

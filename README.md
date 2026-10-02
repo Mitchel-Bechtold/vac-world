@@ -47,11 +47,11 @@ report or analysis is complete.
 ## Running the experiments
 
 ```bash
-python experiments.py --quick              # 3 smallest grids, fast sanity check
-python experiments.py                      # full sweep, all 6 grids, 60s timeout/config
-python experiments.py --timeout 120        # more patience for a slower machine
-python experiments.py --grids g6_corridor  # rerun just one grid
-python experiments.py --analyze            # also (re)build the table and both plots
+python experiments.py --quick             
+python experiments.py                      
+python experiments.py --timeout 120        
+python experiments.py --grids g6_corridor  
+python experiments.py --analyze            
 ```
 
 A full `--analyze` run does three things:

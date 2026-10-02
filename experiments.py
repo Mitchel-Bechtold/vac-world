@@ -34,15 +34,12 @@ import sys
 import time
 
 import matplotlib
-matplotlib.use('Agg')  # write PNGs directly; no display needed on a lab machine
+matplotlib.use('Agg')  
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from test_grids import GRIDS, EXAMPLE, parse_grid
 
-# A fixed color per series, assigned once and reused across both plots
-# instead of letting matplotlib auto-cycle colors independently in each
-# figure - that way "astar" is always the same color everywhere you look.
 ALGO_COLORS = {'dfs': '#2a78d6', 'astar': '#eb6834', 'idastar': '#1baf7a'}
 HEURISTIC_COLORS = {'h0': '#2a78d6', 'h1': '#eb6834', 'h2': '#1baf7a', 'h3': '#eda100'}
 
@@ -220,21 +217,13 @@ def make_table(rows):
     """
     df = pd.DataFrame(rows)
 
-    # DFS has no heuristic; '-' is a fine internal sentinel but reads as a
-    # typo in a printed table, so spell it out.
     df['heuristic'] = df['heuristic'].replace(NO_HEURISTIC, 'n/a')
 
-    # max_frontier (DFS, A*) and iterations (IDA*) are never both set on the
-    # same row - one column holding whichever applies is easier to read
-    # than two columns that are each half-empty.
     df['frontier_or_iters'] = df['max_frontier'].fillna(df['iterations'])
 
     table = df[['grid', 'algorithm', 'heuristic', 'status',
                 'cost', 'nodes_expanded', 'frontier_or_iters', 'seconds']].copy()
 
-    # Sort grids by difficulty (the order test_grids.py defines them in,
-    # not alphabetically - "g10" sorting before "g2" is the classic trap),
-    # then group each grid's algorithms together, DFS/A*/IDA* in that order.
     grid_rank = {name: i for i, name in enumerate(['example'] + list(GRIDS))}
     algo_rank = {name: i for i, name in enumerate(ALGORITHMS)}
     table['_g'] = table['grid'].map(grid_rank)
@@ -261,9 +250,7 @@ def plot_scaling(rows):
     Save to figures/scaling.png.
     """
     df = pd.DataFrame(rows)
-    # TIMEOUT/ERROR rows have no nodes_expanded to plot - drop them here,
-    # but they still belong in the table/discussion, so we do NOT drop them
-    # from `rows` itself, only from this local copy.
+
     df = df[df['status'] == 'ok']
 
     fig, ax = plt.subplots(figsize=(7, 5))
@@ -271,9 +258,7 @@ def plot_scaling(rows):
     for algorithm in ALGORITHMS:
         subset = df[df['algorithm'] == algorithm]
         if algorithm != 'dfs':
-            # DFS has no heuristic to pin; A*/IDA* need one held fixed so
-            # we're reading "cost of the algorithm" and not "cost of a
-            # different heuristic" as the lines move across grids.
+
             subset = subset[subset['heuristic'] == 'h2']
         subset = subset.sort_values('n_dirty')
         if subset.empty:
@@ -282,9 +267,6 @@ def plot_scaling(rows):
                 marker='o', linewidth=2, markersize=6,
                 color=ALGO_COLORS[algorithm], label=algorithm)
 
-    # Node counts span orders of magnitude between a 3x3 grid and the 6x6
-    # corridor grid - a linear axis would flatten DFS and A* into the same
-    # line near zero. Log scale is what makes the growth RATE comparable.
     ax.set_yscale('log')
     ax.set_xlabel('Number of dirty cells')
     ax.set_ylabel('Nodes expanded (log scale)')
@@ -314,10 +296,7 @@ def plot_heuristics(rows):
     pivot = df.pivot_table(index='grid', columns='heuristic',
                             values='nodes_expanded', aggfunc='first')
 
-    # Column order and row order both need to be forced: pivot_table sorts
-    # alphabetically by default, which would put h0/h1/h2/h3 in the right
-    # order by luck but grids in the wrong one ("g1" before "g2" but also
-    # before "g10" if this ever grows past 9 grids).
+   
     heuristics_present = [h for h in HEURISTIC_NAMES if h in pivot.columns]
     pivot = pivot[heuristics_present]
     grid_order = [g for g in GRIDS if g in pivot.index]
@@ -326,9 +305,6 @@ def plot_heuristics(rows):
     colors = [HEURISTIC_COLORS[h] for h in heuristics_present]
     ax = pivot.plot(kind='bar', figsize=(8, 5), color=colors, width=0.8)
 
-    # Same reasoning as plot_scaling: h0 (uniform-cost search) can expand
-    # far more nodes than h1/h2 on the larger grids, so a log axis is what
-    # keeps the informed heuristics' bars visible at all.
     ax.set_yscale('log')
     ax.set_xlabel('Grid')
     ax.set_ylabel('Nodes expanded (log scale)')
@@ -389,5 +365,5 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    # The multiprocessing guard above is required on Windows and macOS.
+    
     sys.exit(main())

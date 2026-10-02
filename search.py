@@ -68,19 +68,12 @@ def dfs_search(problem):
 
     while stack:
         state, path = stack.pop()
-
-        # A state can be pushed onto the stack more than once (via two
-        # different parents) before either copy is popped. Skip it here
-        # if we've already expanded it - this is the cycle detection.
         if state in explored:
             continue
         explored.add(state)
 
         if problem.is_goal(state):
             return path, nodes_expanded, max_frontier_size
-
-        # We only reach here for a node whose successors we are about to
-        # generate, which is the definition of "expanded" in the handout.
         nodes_expanded += 1
         for action in reversed(problem.get_actions(state)):
             next_state = problem.result(state, action)
@@ -136,14 +129,6 @@ def astar_search(problem, heuristic):
         for action in problem.get_actions(state):
             next_state = problem.result(state, action)
             tentative_g = g[state] + problem.action_cost(state, action)
-
-            # This is the reopening logic: if we've never seen next_state,
-            # or we just found a strictly cheaper way to reach it (even if
-            # we already popped and expanded it once before), record the
-            # better cost/parent and (re-)push it. PriorityQueue.push does
-            # decrease-key if it's still in the frontier, or adds a fresh
-            # entry if it had already been popped - either way this is
-            # exactly the improvement we want.
             if next_state not in g or tentative_g < g[next_state]:
                 g[next_state] = tentative_g
                 came_from[next_state] = (state, action)
@@ -207,15 +192,7 @@ def idastar_search(problem, heuristic):
     f-value it saw that exceeded the threshold, or math.inf.
     """
     initial = problem.initial_state()
-    nodes_expanded = 0  # cumulative across ALL iterations, on purpose -
-                        # re-expansion across thresholds is the real cost
-                        # of IDA*, and the point of comparing it to A*.
-
-    # path_states: cheap membership test to avoid immediately walking back
-    # onto a state already on the current branch (linear-space cycle
-    # avoidance - no persistent explored set).
-    # path_actions: mutated in lockstep with the recursion; when we hit
-    # FOUND we stop popping, so whatever is left in it IS the solution.
+    nodes_expanded = 0 
     path_actions = []
 
     def search(state, g, threshold, path_states):
@@ -223,14 +200,10 @@ def idastar_search(problem, heuristic):
 
         f = g + heuristic(state, problem)
         if f > threshold:
-            return f  # this branch is over-budget; report by how much
+            return f  
 
         if problem.is_goal(state):
             return FOUND
-
-        # Successors are about to be generated - this state counts as
-        # expanded. (A state whose f already exceeded threshold, above,
-        # never reaches this line and is correctly not counted.)
         nodes_expanded += 1
 
         smallest_exceeded = math.inf
@@ -249,9 +222,6 @@ def idastar_search(problem, heuristic):
                 return FOUND
 
             smallest_exceeded = min(smallest_exceeded, result)
-
-            # Backtrack: this branch didn't pan out at this threshold, so
-            # undo both pieces of state before trying the next action.
             path_actions.pop()
             path_states.remove(next_state)
 
@@ -272,7 +242,6 @@ def idastar_search(problem, heuristic):
 
 
 if __name__ == "__main__":
-    # Quick manual check once you have implemented an algorithm:
     from test_grids import EXAMPLE, parse_grid
     from vacuum_world import VacuumWorld
     from heuristics import h2
