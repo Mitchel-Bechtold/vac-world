@@ -1,6 +1,13 @@
 # 1. DFS expands far fewer nodes than A*, yet returns much worse solutions — explain both halves.
 
-# Fewer nodes: DFS has no notion of "better" or "worse" — it commits to one branch, follows it to completion, and stops at the very first sequence of actions that reaches the goal, full stop. It never backtracks to compare alternatives once something works. On g6_corridor, DFS expanded only 195 nodes versus A*/h0's 10,873 — it simply didn't need to look at most of the reachable state space before stumbling onto some working path.
+# Fewer nodes: DFS has no notion of "better" or "worse" — 
+# it commits to one branch, follows it to completion, and 
+# stops at the very first sequence of actions that reaches 
+# the goal, full stop. It never backtracks to compare 
+# alternatives once something works. On g6_corridor, 
+# DFS expanded only 195 nodes versus A*/h0's 10,873 — 
+# it simply didn't need to look at most of the reachable 
+# state space before stumbling onto some working path.
 
 # Worse solutions: that's the exact same mechanism causing the exact same result. Because DFS stops the instant it finds anything that works, whatever path the fixed action order (MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, CLEAN) happens to walk it down first is what you get — however circuitous. On that same corridor grid, DFS's plan cost 121 actions against a true optimum of 32 — nearly 4x longer. The two halves aren't separate phenomena; they're the same cause seen from two angles: no cost-awareness means cheap-to-stop and low-quality-when-stopped are the same coin.
 
